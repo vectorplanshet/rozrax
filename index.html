@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Азимут та відстань від Харкова</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input {
+            width: 300px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Розрахунок азимута та відстані від Харкова</h2>
+    <input id="coords" placeholder="Введіть широту та довготу (через пробіл або кому)">
+    <button onclick="calculate()">Розрахувати</button>
+
+    <div class="result" id="result"></div>
+
+    <script>
+        function toRadians(degrees) {
+            return degrees * Math.PI / 180;
+        }
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371.0;
+            const dlat = toRadians(lat2 - lat1);
+            const dlon = toRadians(lon2 - lon1);
+            const a = Math.sin(dlat / 2) ** 2 + Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(dlon / 2) ** 2;
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function calculateBearing(lat1, lon1, lat2, lon2) {
+            const dlon = toRadians(lon2 - lon1);
+            const y = Math.sin(dlon) * Math.cos(toRadians(lat2));
+            const x = Math.cos(toRadians(lat1)) * Math.sin(toRadians(lat2)) -
+                      Math.sin(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.cos(dlon);
+            let brng = Math.atan2(y, x);
+            brng = (brng * 180 / Math.PI + 360) % 360;
+            return brng;
+        }
+
+        function calculate() {
+            const input = document.getElementById('coords').value.replace(',', ' ');
+            const [latStr, lonStr] = input.trim().split(/\s+/);
+            const lat2 = parseFloat(latStr);
+            const lon2 = parseFloat(lonStr);
+
+            if (isNaN(lat2) || isNaN(lon2)) {
+                document.getElementById('result').innerText = 'Некоректні координати';
+                return;
+            }
+
+            const kharkivLat = 49.9935;
+            const kharkivLon = 36.2304;
+
+            const distance = calculateDistance(kharkivLat, kharkivLon, lat2, lon2);
+            const bearing = calculateBearing(kharkivLat, kharkivLon, lat2, lon2);
+
+            document.getElementById('result').innerText = `Харків ${Math.round(bearing)} ${Math.round(distance)}`;
+        }
+    </script>
+
+</body>
+</html>
